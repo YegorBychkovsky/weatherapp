@@ -1,9 +1,9 @@
 <script setup>
 // @ is an alias to /src
-import HomePage from "@/components/HomePage.vue";
+import FavoritesPage from "@/components/FavoritesPage.vue";
 </script>
 <template>
   <div class="home">
-    <HomePage />
+    <FavoritesPage />
   </div>
 </template>
