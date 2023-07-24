@@ -1,8 +1,10 @@
 <script setup>
 import { ref } from "vue";
 import { useStore } from "vuex";
+import ModalWindow from "../components/ui/ModalWindow.vue";
 import { cityTemplate } from "../utils/constants";
 import WeatherCard from "./WeatherCard.vue";
+
 const store = useStore();
 const cities = ref([
   {
@@ -32,6 +34,10 @@ const cities = ref([
     wind: { speed: 0, deg: 0, gust: 0 },
   },
 ]);
+const deleteWindow = ref(false);
+const removeCityName = ref("");
+const removeCityId = ref(0);
+
 const addCity = () => {
   if (store.state.cities.length < 5) {
     const city = { ...cityTemplate };
@@ -41,12 +47,22 @@ const addCity = () => {
     cities.value.push(city);
   }
 };
-const removeCity = (id) => {
-  store.commit("filterCities", id);
-  cities.value = cities.value.filter((item) => {
-    return item.id !== id;
-  });
+const removeCity = (res) => {
+  res
+    ? (store.commit("filterCities", res),
+      (cities.value = cities.value.filter((item) => {
+        return item.id !== res;
+      })),
+      (deleteWindow.value = false))
+    : (deleteWindow.value = false);
 };
+const removeAccepting = (id) => {
+  deleteWindow.value = true;
+  const index = cities.value.findIndex((city) => city.id === id);
+  removeCityName.value = cities.value[index]?.name;
+  removeCityId.value = id;
+};
+
 const addData = ({ city, id }) => {
   cities.value[id] = city;
 };
@@ -56,7 +72,13 @@ const addData = ({ city, id }) => {
   <div style="display: flex">
     <button @click="addCity()">+</button>
   </div>
-  <div style="display: flex; flex-wrap: wrap">
+  <ModalWindow
+    v-if="deleteWindow"
+    :name="removeCityName"
+    :id="removeCityId"
+    @remove="removeCity"
+  />
+  <div v-else style="display: flex; flex-wrap: wrap">
     <WeatherCard
       v-for="(city, i) in cities"
       :key="i"
@@ -69,7 +91,7 @@ const addData = ({ city, id }) => {
       :temp="city.main?.temp"
       :feelsLike="city.main?.feels_like"
       :windSpeed="city.wind.speed"
-      @remove="removeCity"
+      @remove="removeAccepting"
       @fetch="addData"
     />
   </div>

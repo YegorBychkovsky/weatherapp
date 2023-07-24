@@ -55,7 +55,6 @@ const deleteFromLocalStorage = () => {
   isFavorite.value = false;
   isActive.value = false;
   removeFromFavorite(props.id, store);
-  store.commit("setButtonClicked");
 };
 watch(
   () => store.state.cities,
