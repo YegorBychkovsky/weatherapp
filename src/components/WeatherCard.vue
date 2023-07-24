@@ -3,10 +3,10 @@ import { defineEmits, defineProps, ref, watch } from "vue";
 import { useStore } from "vuex";
 import {
   addToFavorite,
-  formatate,
   removeFromFavorite,
 } from "../utils/utilsFunctions";
 import ChartComponent from "./ChartComponent.vue";
+import TodaysDataPanel from "./TodaysDataPanel.vue";
 
 const props = defineProps({
   key: Number,
@@ -29,7 +29,7 @@ const city = ref(props.city);
 const cityName = ref(props.name || "");
 const isFavorite = ref(false);
 const isActive = ref(true);
-const Path = ref(window.location.pathname);
+const path = ref(window.location.pathname);
 const citiesData = ref(JSON.parse(localStorage.getItem("citiesData")));
 
 const fetchData = async () => {
@@ -57,26 +57,29 @@ const deleteFromLocalStorage = () => {
   removeFromFavorite(props.id, store);
   store.commit("setButtonClicked");
 };
-watch(store.state.cities, () => {
-  if (Path.value !== "/favorites") {
-    city.value = store.state.cities[props.id];
-    cityName.value = city.value.name;
-  }
-});
+watch(
+  () => store.state.cities,
+  () => {
+    path.value !== "/favorites"
+      ? store.state.cities[props.id]
+        ? (cityName.value = store.state.cities[props.id].name)
+        : null
+      : null;
+  },
+);
 watch(
   () => store.state.buttonClicked,
   () => {
-    if (Path.value === "/favorites") {
-      citiesData.value = JSON.parse(localStorage.getItem("citiesData"));
-      city.value = citiesData.value[props.citiesArrId];
-      cityName.value = city.value?.name;
-    } else if (Path.value !== "/favorites") {
-      cityName.value = props.name;
-    }
+    path.value === "/favorites"
+      ? ((citiesData.value = JSON.parse(
+          localStorage.getItem("citiesData"),
+        )),
+        (city.value = citiesData.value[props.citiesArrId]),
+        (cityName.value = city.value?.name))
+      : null;
   },
 );
 const handleRemove = () => {
-  console.log(props.city.id);
   emit("remove", props.city.id);
 };
 const handleFetch = async () => {
@@ -95,27 +98,26 @@ const handleFetch = async () => {
       position: relative;
     "
     :class="{
-      'active-forecast': isActive === false && Path === '/favorites',
+      'active-forecast': isActive === false && path === '/favorites',
     }"
   >
     <button
       style="position: absolute; right: 50px; top: 15px; font-size: 11px"
       @click="
-        isFavorite || Path === '/favorites'
+        isFavorite || path === '/favorites'
           ? deleteFromLocalStorage()
           : saveToLocalStorage()
       "
       :class="{
-        'favorite-button': isFavorite || Path === '/favorites',
+        'favorite-button': isFavorite || path === '/favorites',
       }"
     >
       ★
     </button>
     <button
-      v-if="Path !== '/favorites'"
+      v-if="path !== '/favorites'"
       style="position: absolute; right: 20px; top: 15px"
       @click="handleRemove"
-      :disabled="store.state.afterDelPause"
     >
       Х
     </button>
@@ -125,7 +127,7 @@ const handleFetch = async () => {
         <input
           type="text"
           v-model="cityName"
-          :readonly="Path === '/favorites'"
+          :readonly="path === '/favorites'"
           @keyup.enter="handleFetch"
           placeholder="city"
           style="margin-top: 10px"
@@ -134,21 +136,15 @@ const handleFetch = async () => {
     </div>
     <br />
     <br />
-    <div
-      style="display: flex; justify-content: space-between"
+    <TodaysDataPanel
       v-if="city && city.weather && city.weather.length > 0"
-    >
-      <tr style="display: inline-block">
-        <td>description: {{ props.description }}</td>
-        <td>sunrise: {{ formatate(props.sunrise) + "AM" }}</td>
-        <td>sunset: {{ formatate(props.sunset) + "PM" }}</td>
-      </tr>
-      <tr style="display: intdne-block">
-        <td>temp: {{ props.temp }}℃</td>
-        <td>feels like: {{ props.feelsLike }}℃</td>
-        <td>wind speed: {{ props.windSpeed }} m/s</td>
-      </tr>
-    </div>
+      :description="props.description"
+      :sunrise="props.sunrise"
+      :sunset="props.sunset"
+      :temp="props.temp"
+      :feelsLike="props.feelsLike"
+      :windSpeed="props.windSpeed"
+    />
     <ChartComponent
       style="height: 250px"
       v-if="city && city.weather && city.weather.length > 0"

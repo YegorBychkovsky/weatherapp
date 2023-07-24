@@ -42,3 +42,13 @@ export const removeFromFavorite = (id, store) => {
     }
   }
 };
+
+export const toChartData = (reactiveChartData) => {
+  return {
+    labels: reactiveChartData.labels,
+    datasets: reactiveChartData.datasets.map((dataset) => ({
+      ...dataset,
+      data: dataset.data.slice(),
+    })),
+  };
+};

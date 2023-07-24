@@ -6,7 +6,6 @@ export default createStore({
   state: {
     cities: [cityTemplate],
     buttonClicked: false,
-    deletedCity: false,
   },
   mutations: {
     addCity(state, city) {
@@ -17,9 +16,6 @@ export default createStore({
         return item.id !== id;
       });
       state.buttonClicked = !state.buttonClicked;
-    },
-    setButtonClicked(state) {
-      console.log("setButtonClicked");
     },
   },
   actions: {
