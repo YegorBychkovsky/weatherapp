@@ -20,7 +20,7 @@ export default createStore({
   },
   actions: {
     async fetchCity({ state }, { cityName, id }) {
-      const url = `http://api.openweathermap.org/geo/1.0/direct?q=${cityName}&appid=336469a84cf93232f3584a789087de6c`;
+      const url = `https://api.openweathermap.org/geo/1.0/direct?q=${cityName}&appid=336469a84cf93232f3584a789087de6c`;
       const { data } = await axios.get(url);
       state.cities[id].lat = data[0].lat;
       state.cities[id].lon = data[0].lon;
