@@ -54,12 +54,12 @@ const fetchChart = async (lat, lon, qlt) => {
     lon,
     qlt,
   });
-  chartData.value.labels = [];
-  chartData.value.datasets[0].data = [];
-  for (const cycle of data.list) {
-    chartData.value.labels.push(formatate(cycle.dt).toString());
-    chartData.value.datasets[0].data.push(Math.ceil(cycle.main.temp));
-  }
+  chartData.value.labels = data.list.map((cycle) =>
+    formatate(cycle.dt).toString(),
+  );
+  chartData.value.datasets[0].data = data.list.map((cycle) =>
+    Math.ceil(cycle.main.temp),
+  );
 };
 
 watchEffect(() => {
